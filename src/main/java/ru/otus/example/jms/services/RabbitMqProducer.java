@@ -9,6 +9,7 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import ru.otus.example.jms.config.ActiveMqConfig;
 import ru.otus.example.jms.config.RabbitMqConfig;
 import ru.otus.example.jms.dto.OrderDto;
 import ru.otus.example.jms.dto.StudentDto;
@@ -30,7 +31,8 @@ public class RabbitMqProducer {
     private final Random random = new Random();
     private final ObjectMapper objectMapper;
 
-    public RabbitMqProducer(@Qualifier(RabbitMqConfig.JMS_TEMPLATE) JmsTemplate jmsTemplate,
+    //  public RabbitMqProducer(@Qualifier(RabbitMqConfig.JMS_TEMPLATE)  JmsTemplate jmsTemplate,
+    public RabbitMqProducer(@Qualifier(ActiveMqConfig.JMS_TEMPLATE)  JmsTemplate jmsTemplate,
                             ObjectMapper objectMapper) {
         this.jmsTemplate = jmsTemplate;
         this.objectMapper = objectMapper;

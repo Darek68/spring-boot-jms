@@ -24,6 +24,8 @@ dependencies {
         implementation 'org.springframework.boot:spring-boot-starter'
         implementation 'org.springframework.boot:spring-boot-starter-web'
 
+        implementation 'org.springframework.boot:spring-boot-starter-activemq'
+
         implementation 'org.springframework:spring-jms:6.1.11'
         implementation 'com.rabbitmq.jms:rabbitmq-jms:3.2.0'
     }

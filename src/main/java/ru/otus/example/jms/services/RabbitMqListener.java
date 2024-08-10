@@ -9,6 +9,7 @@ import jakarta.jms.TextMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Service;
+import ru.otus.example.jms.config.ActiveMqConfig;
 import ru.otus.example.jms.config.RabbitMqConfig;
 
 import java.io.Serializable;
@@ -20,7 +21,8 @@ public class RabbitMqListener {
     private final ObjectMapper objectMapper;
 
     @JmsListener(destination = RabbitMqConfig.DESTINATION_NAME
-            , containerFactory = RabbitMqConfig.JMS_LISTENER_CONTAINER_FACTORY)
+            //   /*  , containerFactory = RabbitMqConfig.JMS_LISTENER_CONTAINER_FACTORY*/)
+            , containerFactory = ActiveMqConfig.JMS_LISTENER_CONTAINER_FACTORY)
     public void onMessage(Message message) {
         try {
             if (message instanceof TextMessage)
