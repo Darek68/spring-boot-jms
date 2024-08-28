@@ -10,6 +10,7 @@ import org.springframework.jms.core.MessageCreator;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.otus.example.jms.config.ActiveMqConfig;
+import ru.otus.example.jms.config.JsmConst;
 import ru.otus.example.jms.config.RabbitMqConfig;
 import ru.otus.example.jms.dto.OrderDto;
 import ru.otus.example.jms.dto.StudentDto;
@@ -21,38 +22,50 @@ import java.util.Random;
 
 @Slf4j
 @Service
-public class RabbitMqProducer {
+public class JmsMqProducer {
 
     private static final int TEXT = 0;
     private static final int SERIALIZABLE = 1;
     private static final int MESSAGE_CREATOR = 2;
 
-    private final JmsTemplate jmsTemplate;
+    private final JmsTemplate rabbitMqTemplate;
+    private final JmsTemplate activeMqTemplate;
     private final Random random = new Random();
     private final ObjectMapper objectMapper;
 
-    //  public RabbitMqProducer(@Qualifier(RabbitMqConfig.JMS_TEMPLATE)  JmsTemplate jmsTemplate,
-    public RabbitMqProducer(@Qualifier(ActiveMqConfig.JMS_TEMPLATE)  JmsTemplate jmsTemplate,
-                            ObjectMapper objectMapper) {
-        this.jmsTemplate = jmsTemplate;
+    public JmsMqProducer(@Qualifier(RabbitMqConfig.JMS_TEMPLATE) JmsTemplate rabbitMqTemplate,
+                         @Qualifier(ActiveMqConfig.JMS_TEMPLATE) JmsTemplate activeMqTemplate,
+                         ObjectMapper objectMapper) {
+        this.rabbitMqTemplate = rabbitMqTemplate;
+        this.activeMqTemplate = activeMqTemplate;
         this.objectMapper = objectMapper;
     }
 
     @Scheduled(fixedRate = 5000)
     public void convertAndSend() {
-        switch (random.nextInt(3)) {
-            case TEXT:
-                jmsTemplate.convertAndSend(RabbitMqConfig.DESTINATION_NAME, createTextMessage());
-                break;
-            case SERIALIZABLE:
-                jmsTemplate.convertAndSend(RabbitMqConfig.DESTINATION_NAME, createSerializableMessage());
-                break;
-            case MESSAGE_CREATOR:
-                jmsTemplate.send(RabbitMqConfig.DESTINATION_NAME, createMessageCreatorMessage());
-                break;
-            default:
-                System.out.println("ignore random");
-        }
+        int rnd = random.nextInt(3);
+
+        if (rnd == TEXT)
+            convertAndSend(createTextMessage());
+        else if (rnd == SERIALIZABLE)
+            convertAndSend(createSerializableMessage());
+        else    // MESSAGE_CREATOR
+            send(createMessageCreatorMessage());
+    }
+
+    private void convertAndSend(String message) {
+        rabbitMqTemplate.convertAndSend(RabbitMqConfig.DESTINATION_NAME, message);
+        activeMqTemplate.convertAndSend(ActiveMqConfig.DESTINATION_NAME, message);
+    }
+
+    private void convertAndSend(Serializable message) {
+        rabbitMqTemplate.convertAndSend(RabbitMqConfig.DESTINATION_NAME, message);
+        activeMqTemplate.convertAndSend(ActiveMqConfig.DESTINATION_NAME, message);
+    }
+
+    private void send(MessageCreator messageCreator) {
+        rabbitMqTemplate.send(RabbitMqConfig.DESTINATION_NAME, messageCreator);
+        activeMqTemplate.send(ActiveMqConfig.DESTINATION_NAME, messageCreator);
     }
 
     private String createTextMessage() {
@@ -84,7 +97,7 @@ public class RabbitMqProducer {
         return session -> {
             try {
                 ObjectMessage objectMessage = session.createObjectMessage();
-                objectMessage.setStringProperty(RabbitMqConfig.CLASS_NAME, OrderDto.class.getName());
+                objectMessage.setStringProperty(JsmConst.CLASS_NAME, OrderDto.class.getName());
                 objectMessage.setObject(objectMapper.writeValueAsString(order));
                 return objectMessage;
             } catch (JsonProcessingException e) {

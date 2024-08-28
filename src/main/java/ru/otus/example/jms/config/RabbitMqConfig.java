@@ -2,7 +2,6 @@ package ru.otus.example.jms.config;
 
 import com.rabbitmq.jms.admin.RMQConnectionFactory;
 import jakarta.jms.ConnectionFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,34 +17,30 @@ public class RabbitMqConfig {
     public static final String JMS_TEMPLATE = "rabbitMqJmsTemplate";
     public static final String JMS_LISTENER_CONTAINER_FACTORY = "rabbitMqJmsListenerContainerFactory";
 
-    private static final String CONNECTION_FACTORY = "rabbitMqConnectionFactory";
-
     public static final String DESTINATION_NAME = "foo";
-    public static final String CLASS_NAME = "className";
 
-    @Bean(CONNECTION_FACTORY)
+    @Bean
     public ConnectionFactory connectionFactory() {
         RMQConnectionFactory connectionFactory = new RMQConnectionFactory();
         connectionFactory.setHost("localhost");
         connectionFactory.setPort(5672);
-        connectionFactory.setUsername("user");
-        connectionFactory.setPassword("bitnami");
+        connectionFactory.setUsername("admin");
+        connectionFactory.setPassword("password");
         return connectionFactory;
     }
 
     @Bean(JMS_TEMPLATE)
-    public JmsTemplate jmsTemplate(@Qualifier(CONNECTION_FACTORY) ConnectionFactory cachingConnectionFactory) {
-        JmsTemplate jmsTemplate = new JmsTemplate(cachingConnectionFactory);
+    public JmsTemplate jmsTemplate() {
+        JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory());
         jmsTemplate.setReceiveTimeout(TimeUnit.SECONDS.toMillis(10));
         return jmsTemplate;
     }
 
     @Bean(JMS_LISTENER_CONTAINER_FACTORY)
     public JmsListenerContainerFactory<?> jmsListenerContainerFactory(
-            @Qualifier(CONNECTION_FACTORY) ConnectionFactory connectionFactory,
             DefaultJmsListenerContainerFactoryConfigurer configurer) {
         DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
-        configurer.configure(factory, connectionFactory);
+        configurer.configure(factory, connectionFactory());
         return factory;
     }
 

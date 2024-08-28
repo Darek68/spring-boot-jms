@@ -1,59 +1,25 @@
 version: '3.9'
 
 services:
-  #activemq
+  rabbitmq:
+    image: bitnami/rabbitmq
+    hostname: rabbitmq
+    restart: always
+    environment:
+      - RABBITMQ_USERNAME=admin
+      - RABBITMQ_PASSWORD=password
+      - RABBITMQ_MANAGEMENT_ALLOW_WEB_ACCESS=true
+    ports:
+      - 15672:15672
+      - 5672:5672
   activemq:
-    image: rmohr/activemq:latest
-    container_name: 'activemq'
-    restart: always  # ???
-    #  mapping port
+    image: webcenter/activemq:latest
+    hostname: activemq
+    restart: always
+    environment:
+      - ACTIVEMQ_NAME=activemq
+      - ACTIVEMQ_ADMIN_LOGIN=admin
+      - ACTIVEMQ_ADMIN_PASSWORD=password
     ports:
       - 61616:61616
       - 8161:8161
-    #definition mount point
-    volumes:
-      - /etc/localtime:/etc/localtime:ro  #?
-      - ./data/data/activemq:/data/activemq #?
-      - ./data/var/log/activemq:/var/log/activemq #?
-      - ~/Documents/data/activemq/data:/data/activemq
-      - ~/Documents/data/activemq/log:/var/log/activemq
-    #  - ./activeMQ/data:/usr/local/apache-activemq-5.12.1/data
-    environment:
-      - ACTIVEMQ_DISALLOW_WEBCONSOLE=false
-      - ACTIVEMQ_USERNAME=admin
-      - ACTIVEMQ_PASSWORD=admin
-      - ACTIVEMQ_WEBADMIN_USERNAME=admin
-      - ACTIVEMQ_WEBADMIN_PASSWORD=admin
-      - ACTIVEMQ_CONFIG_MINMEMORY=512
-      - ACTIVEMQ_CONFIG_MAXMEMORY=2048
-
-
-#  "ACTIVEMQ_DISALLOW_WEBCONSOLE=false",
-      #        "ACTIVEMQ_USERNAME=admin",
-      #        "ACTIVEMQ_PASSWORD=admin",
-      #        "ACTIVEMQ_WEBADMIN_USERNAME=admin",
-      #        "ACTIVEMQ_WEBADMIN_PASSWORD=admin",
-      #        "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
-      #        "LANG=C.UTF-8",
-      #        "JAVA_HOME=/docker-java-home/jre",
-      #        "JAVA_VERSION=8u181",
-      #        "JAVA_DEBIAN_VERSION=8u181-b13-1~deb9u1",
-      #        "CA_CERTIFICATES_JAVA_VERSION=20170531+nmu1",
-      #        "ACTIVEMQ_VERSION=5.15.6",
-      #        "ACTIVEMQ=apache-activemq-5.15.6",
-      #        "ACTIVEMQ_TCP=61616",
-      #        "ACTIVEMQ_AMQP=5672",
-      #        "ACTIVEMQ_STOMP=61613",
-      #        "ACTIVEMQ_MQTT=1883",
-      #        "ACTIVEMQ_WS=61614",
-      #        "ACTIVEMQ_UI=8161",
-      #        "SHA512_VAL=a1b931a25c513f83f4f712cc126ee67a2b196ea23a243aa6cafe357ea03f721fba6cb566701e5c0e1f2f7ad8954807361364635c45d5069ec2dbf0ba5c6b588b",
-      #        "ACTIVEMQ_HOME=/opt/activemq"
-
-# -p 61616:61616 \
-#-p 8161:8161 \
-#-e ACTIVEMQ_DISALLOW_WEBCONSOLE=false \
-#-e ACTIVEMQ_USERNAME=admin \
-#-e ACTIVEMQ_PASSWORD=admin \
-#-e ACTIVEMQ_WEBADMIN_USERNAME=admin \
-#-e ACTIVEMQ_WEBADMIN_PASSWORD=admin \
